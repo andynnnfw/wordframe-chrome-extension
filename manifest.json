@@ -1,0 +1,32 @@
+{
+    "manifest_version": 3,
+    "name": "wordframe",
+    "version": "1.0.0",
+
+    "action": {
+        "default_popup": "popup.html"
+    },
+    "host_permissions": [
+
+    ],
+    "permissions": [
+        "storage"
+    ],
+    "commands": {
+        "translate-selection": {
+            "suggested_key": {
+                "default": "Ctrl+Shift+Y"
+            },
+            "description": "traduz o texto selecionado na página, com imagem de contexto."
+        },
+          "toggle-recording": {
+            "suggested_key": {
+                "default": "Ctrl+Shift+U"
+            },
+            "description": "inicia/para a gravação do vídeo em reprodução na aba (o clipe é baixado como .webm)."
+        }
+        
+    }
+}
+
+
