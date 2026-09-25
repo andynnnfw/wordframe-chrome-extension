@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EnglishClip</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <main class="app">
+    <header class="app-header">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">
+          <span>EC</span>
+        </div>
+        <div>
+          <h1>EnglishClip</h1>
+          <p>Aprenda inglês no seu ritmo</p>
+        </div>
+      </div>
+      <div class="status-dot" title="EnglishClip ativo"></div>
+    </header>
+
+    <nav class="tabs" aria-label="Navegação">
+      <button class="tab-btn active" data-tab="translate">
+        <span class="tab-icon">⌕</span>
+        <span>Traduzir</span>
+      </button>
+      <button class="tab-btn" data-tab="flashcards">
+        <span class="tab-icon">▣</span>
+        <span>Flashcards</span>
+      </button>
+      <button class="tab-btn" data-tab="history">
+        <span class="tab-icon">↶</span>
+        <span>Histórico</span>
+      </button>
+    </nav>
+
+    <section id="tab-translate" class="tab-panel active">
+      <div class="section-heading">
+        <div>
+          <span class="eyebrow">VOCABULÁRIO</span>
+          <h2>O que você quer aprender?</h2>
+        </div>
+        <span class="kbd">EN → PT</span>
+      </div>
+
+      <div class="search-box">
+        <input id="manual-input" type="text" placeholder="Digite uma palavra ou frase em inglês..." autocomplete="off" />
+        <button id="manual-translate-btn" aria-label="Traduzir">
+          <span>Traduzir</span>
+          <span class="arrow">→</span>
+        </button>
+      </div>
+
+      <div class="tip">
+        <span class="tip-icon">✦</span>
+        <span>Selecione uma palavra em qualquer página e use <strong>Ctrl + Shift + Y</strong>.</span>
+      </div>
+
+      <div id="manual-result" class="result-card"></div>
+    </section>
+
+    <section id="tab-flashcards" class="tab-panel">
+      <div class="section-heading flash-heading">
+        <div>
+          <span class="eyebrow">REVISÃO</span>
+          <h2>Suas palavras</h2>
+        </div>
+        <button id="review-btn" class="primary-small">
+          <span>Revisar</span>
+          <span>↗</span>
+        </button>
+      </div>
+
+      <div class="stats-card">
+        <div class="stat-icon">✦</div>
+        <div>
+          <strong id="flashcard-count">0 palavras salvas</strong>
+          <span>Continue praticando para fixar o vocabulário.</span>
+        </div>
+      </div>
+
+      <div id="flashcard-list" class="flashcard-list"></div>
+
+      <div id="review-area" class="hidden review-area">
+        <div class="review-top">
+          <span class="eyebrow">MODO REVISÃO</span>
+          <button id="review-close" class="icon-close" aria-label="Fechar revisão">×</button>
+        </div>
+        <div id="review-card" class="review-card"></div>
+        <div class="review-nav">
+          <button id="review-prev" aria-label="Anterior">←</button>
+          <span id="review-progress"></span>
+          <button id="review-next" aria-label="Próximo">→</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="tab-history" class="tab-panel">
+      <div class="section-heading">
+        <div>
+          <span class="eyebrow">RECENTES</span>
+          <h2>Histórico</h2>
+        </div>
+        <button id="clear-history-btn" class="text-button">Limpar</button>
+      </div>
+
+      <div id="history-list" class="history-list">
+        <div class="empty-history">
+          <div class="empty-icon">↶</div>
+          <strong>Nenhuma tradução ainda</strong>
+          <span>As palavras e frases que você traduzir aparecerão aqui.</span>
+        </div>
+      </div>
+
+      <button id="help-shortcuts-btn" class="help-button">
+        <span>?</span>
+        <span>Sobre / Atalhos</span>
+      </button>
+
+      <div id="shortcuts-panel" class="shortcuts-panel hidden">
+        <div class="shortcuts-title">
+          <strong>Teclas de atalho</strong>
+          <button id="close-shortcuts-btn" class="close-simple">×</button>
+        </div>
+
+        <div class="shortcut-simple">
+          <span>Traduzir seleção</span>
+          <kbd>Ctrl ⇧ Y</kbd>
+        </div>
+
+        <div class="shortcut-simple">
+          <span>Gravar clipe</span>
+          <kbd>Ctrl ⇧ U</kbd>
+        </div>
+
+        <p>Você pode alterar os atalhos em <code>chrome://extensions/shortcuts</code>.</p>
+      </div>
+    </section>
+
+    <footer class="app-footer">
+      <span>EnglishClip</span>
+      <span>Aprender • Praticar • Evoluir</span>
+    </footer>
+  </main>
+
+  <script src="popup.js"></script>
+</body>
+</html>
