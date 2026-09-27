@@ -24,4 +24,16 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         fetchTranslation(msg.text).then(sendResponse);
         return true;
     }
+
+    if (msg.type === "save-vocab"){
+        const saveVocabItem = async () => {
+            const { vocabList = [] } = await chrome.storage.local.get("vocabList");
+            
+            vocabList.unshift(msg.item);
+            await chrome.storage.local.set({vocabList});
+            sendResponse({ok: true});
+        };
+        saveVocabItem();
+        return true
+    }
 });
