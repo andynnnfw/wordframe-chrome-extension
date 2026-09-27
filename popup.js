@@ -79,9 +79,7 @@ async function doManualTranslate() {
     <button id="manual-save-btn">💾 salvar no flashcard</button>
   `;
   document.getElementById("manual-save-btn")?.addEventListener("click", async () => {
-    await chrome.runtime.sendMessage({
-      type: "save-vocab",
-      item: {
+    await chrome.runtime.sendMessage({type: "save-vocab", item: {
         original: result.original,
         translation: result.translation,
         imageUrl: result.imageUrl,
