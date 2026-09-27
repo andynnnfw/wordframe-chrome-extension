@@ -58,7 +58,6 @@ tabButtons.forEach((btn) => {
 });
 
 
-
 const manualInput = document.getElementById("manual-input");
 const manualBtn = document.getElementById("manual-translate-btn");
 const manualResult = document.getElementById("manual-result");
@@ -90,7 +89,6 @@ async function doManualTranslate() {
     loadFlashcards();
   });
 }
-
 
 
 const flashcardList = document.getElementById("flashcard-list");
@@ -126,7 +124,6 @@ async function loadFlashcards() {
 }
 
 loadFlashcards();
-
 
 
 const reviewBtn = document.getElementById("review-btn");
