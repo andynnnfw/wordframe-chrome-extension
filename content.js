@@ -1,3 +1,6 @@
+let recorder = null;
+let recordedChunks = [];    
+
 function getSelectedText() {
   return window.getSelection().toString().trim();
 }
@@ -43,7 +46,63 @@ async function handleTranslateSelection() {
 }
 
 function handleToggleRecording() {
+  if (recorder && recorder.state === "recording") {
+    recorder.stop();
+    return;
+  }
   
+  const video = findActiveVideo();
+  if (!video) {
+    showToast("Nenhum vídeo encontrado nesta página.");
+    return;
+  }
+
+  try {
+    const stream = video.captureStream();
+    recordedChunks = [];
+    recorder = new MediaRecorder(stream, { mimeType: "video/webm" });
+
+    recorder.ondataavailable = (e) => {
+      if (e.data && e.data.size > 0) recordedChunks.push(e.data);
+    };
+
+    recorder.onstop = onRecordingStop;
+
+    recorder.start();
+    showToast("Gravando... pressione o atalho de novo para parar.");
+  } catch (error) {
+    console.error("Erro ao gravar:", error);
+    showToast("Não foi possível gravar este vídeo.");
+  }
+}
+
+function onRecordingStop() {
+  const blob = new Blob(recordedChunks, { type: "video/webm" });
+  const url = URL.createObjectURL(blob);
+  const filename = `wordframe-clip-${Date.now()}.webm`;
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+
+  showToast(`Clipe salvo como ${filename}`);
+}
+
+function showToast(text) {
+  let toast = document.getElementById("wordframe-toast");
+  if (!toast) {
+    toast = document.createElement("div");
+    toast.id = "wordframe-toast";
+    document.body.appendChild(toast);
+  }
+  toast.textContent = text;
+
+
+  clearTimeout(toast._hideTimeout);
+  toast._hideTimeout = setTimeout(() => toast.remove(), 4000);
 }
 
 chrome.runtime.onMessage.addListener((msg) => {
