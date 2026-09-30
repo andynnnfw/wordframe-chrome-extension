@@ -8,7 +8,7 @@ helpBtn.addEventListener("click", () => {
 });
 
 closeShortcutsBtn.addEventListener("click", () => {
-    shortcutsPanel.classList.toggle("hidden");
+    shortcutsPanel.classList.add("hidden");
 });
 
 
@@ -19,12 +19,14 @@ const emptyHistoryHTML = historyList.innerHTML;
 async function loadHistory() {
     const {historyList: items = []} = await chrome.storage.local.get("historyList");
 
+    clearHistoryBtn.disabled = items.length === 0;
+
     if (items.length === 0) {
         historyList.innerHTML = emptyHistoryHTML;
         return;
     }
 
-      historyList.innerHTML = items
+    historyList.innerHTML = items
     .map(
       (item) => `
       <div class="flashcard-row">
@@ -38,19 +40,24 @@ async function loadHistory() {
 }
 
 clearHistoryBtn.addEventListener("click", async () => {
+    if (!confirm("Apagar todo o histórico de traduções?")) return;
     await chrome.storage.local.set({historyList: []});
     loadHistory();
 });
 
 
-const tabButtons = document.getElementById(".tab-btn");
-const tabPanels = document.getElementById(".tab-panel");
+const tabButtons = document.querySelectorAll(".tab-btn");
+const tabPanels = document.querySelectorAll(".tab-panel");
 
 tabButtons.forEach((btn) => {
   btn.addEventListener("click", () => {
-    tabButtons.forEach((b) => b.classList.remove("active"));
+    tabButtons.forEach((b) => {
+      b.classList.remove("active");
+      b.setAttribute("aria-selected", "false");
+    });
     tabPanels.forEach((p) => p.classList.remove("active"));
     btn.classList.add("active");
+    btn.setAttribute("aria-selected", "true");
     document.getElementById(`tab-${btn.dataset.tab}`).classList.add("active");
     if (btn.dataset.tab === "flashcards") loadFlashcards();
     if (btn.dataset.tab === "history") loadHistory();
@@ -71,14 +78,28 @@ async function doManualTranslate() {
   const text = manualInput.value.trim();
   if (!text) return;
   manualResult.innerHTML = `<p>Traduzindo…</p>`;
-  const result = await chrome.runtime.sendMessage({ type: "fetch-translation", text });
+
+  let result;
+  try {
+    result = await chrome.runtime.sendMessage({ type: "fetch-translation", text });
+  } catch (error) {
+    result = { error: error.message };
+  }
+
+  if (!result || result.error) {
+    manualResult.innerHTML = `<p>Não foi possível traduzir: ${escapeHtml(result?.error || "sem resposta.")}</p>`;
+    return;
+  }
+
   manualResult.innerHTML = `
-    <p class="r-translation">${escapeHtml(result.translation || "(indisponível)")}</p>
-    ${result.imageUrl ? `<img src="${result.imageUrl}" alt="contexto">` : ""}
-    <button id="manual-save-btn">💾 salvar no flashcard</button>
+    <p class="r-translation">${escapeHtml(result.translation)}</p>
+    ${result.imageUrl ? `<img src="${escapeHtml(result.imageUrl)}" alt="contexto">` : ""}
+    <button id="manual-save-btn">salvar no flashcard</button>
   `;
-  document.getElementById("manual-save-btn")?.addEventListener("click", async () => {
-    await chrome.runtime.sendMessage({type: "save-vocab", item: {
+  const saveBtn = document.getElementById("manual-save-btn");
+  saveBtn.addEventListener("click", async () => {
+    saveBtn.disabled = true;
+    const response = await chrome.runtime.sendMessage({type: "save-vocab", item: {
         original: result.original,
         translation: result.translation,
         imageUrl: result.imageUrl,
@@ -86,7 +107,14 @@ async function doManualTranslate() {
         clipFile: null,
       },
     });
-    loadFlashcards();
+
+    if (response?.ok) {
+      saveBtn.textContent = "salvo no flashcard";
+      loadFlashcards();
+    } else {
+      saveBtn.disabled = false;
+      saveBtn.textContent = "erro ao salvar — tentar de novo";
+    }
   });
 }
 
@@ -98,7 +126,9 @@ let vocabCache = [];
 async function loadFlashcards() {
   const { vocabList = [] } = await chrome.storage.local.get("vocabList");
   vocabCache = vocabList;
-  flashcardCount.textContent = `${vocabList.length} palavra(s) salva(s)`;
+  const n = vocabList.length;
+  flashcardCount.textContent = `${n} ${n === 1 ? "palavra salva" : "palavras salvas"}`;
+  reviewBtn.disabled = n === 0;
   flashcardList.innerHTML = vocabList
     .map(
       (item, i) => `
@@ -115,15 +145,14 @@ async function loadFlashcards() {
 
   flashcardList.querySelectorAll(".fc-delete").forEach((btn) => {
     btn.addEventListener("click", async (e) => {
-      const idx = Number(e.target.dataset.index);
+      const idx = Number(e.currentTarget.dataset.index);
       vocabCache.splice(idx, 1);
       await chrome.storage.local.set({ vocabList: vocabCache });
-      loadFlashcards();
+      await loadFlashcards();
+      syncReviewAfterDelete();
     });
   });
 }
-
-loadFlashcards();
 
 
 const reviewBtn = document.getElementById("review-btn");
@@ -134,6 +163,8 @@ const reviewClose = document.getElementById("review-close");
 
 let reviewIndex = 0;
 let showingAnswer = false;
+
+loadFlashcards();
 
 reviewBtn.addEventListener("click", () => {
   if (vocabCache.length === 0) return;
@@ -146,12 +177,14 @@ reviewBtn.addEventListener("click", () => {
 reviewClose.addEventListener("click", () => reviewArea.classList.add("hidden"));
 
 document.getElementById("review-prev").addEventListener("click", () => {
+  if (vocabCache.length === 0) return;
   reviewIndex = (reviewIndex - 1 + vocabCache.length) % vocabCache.length;
   showingAnswer = false;
   renderReviewCard();
 });
 
 document.getElementById("review-next").addEventListener("click", () => {
+  if (vocabCache.length === 0) return;
   reviewIndex = (reviewIndex + 1) % vocabCache.length;
   showingAnswer = false;
   renderReviewCard();
@@ -162,6 +195,17 @@ reviewCard.addEventListener("click", () => {
   renderReviewCard();
 });
 
+function syncReviewAfterDelete() {
+  if (reviewArea.classList.contains("hidden")) return;
+  if (vocabCache.length === 0) {
+    reviewArea.classList.add("hidden");
+    return;
+  }
+  reviewIndex = Math.min(reviewIndex, vocabCache.length - 1);
+  showingAnswer = false;
+  renderReviewCard();
+}
+
 function renderReviewCard() {
   const item = vocabCache[reviewIndex];
   if (!item) return;
@@ -171,14 +215,18 @@ function renderReviewCard() {
   } else {
     reviewCard.innerHTML = `
       <strong>${escapeHtml(item.translation || "?")}</strong>
-      ${item.imageUrl ? `<img src="${item.imageUrl}" alt="contexto">` : ""}
+      ${item.imageUrl ? `<img src="${escapeHtml(item.imageUrl)}" alt="contexto">` : ""}
       ${item.clipFile ? `<span>clipe: ${escapeHtml(item.clipFile)}</span>` : ""}
     `;
   }
 }
 
+// Escapa também aspas, porque o resultado é usado dentro de atributos (src="…").
 function escapeHtml(str) {
-  const d = document.createElement("div");
-  d.textContent = str ?? "";
-  return d.innerHTML;
+  return String(str ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 }

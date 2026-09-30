@@ -11,7 +11,7 @@
     <header class="app-header">
       <div class="brand">
         <div class="brand-mark" aria-hidden="true">
-          <span>EC</span>
+          <span>WF</span>
         </div>
         <div>
           <h1>WordFrame</h1>
@@ -21,22 +21,22 @@
       <div class="status-dot" title="WordFrame ativo"></div>
     </header>
 
-    <nav class="tabs" aria-label="Navegação">
-      <button class="tab-btn active" data-tab="translate">
-        <span class="tab-icon">⌕</span>
+    <nav class="tabs" role="tablist" aria-label="Navegação">
+      <button class="tab-btn active" role="tab" aria-selected="true" aria-controls="tab-translate" data-tab="translate">
+        <span class="tab-icon" aria-hidden="true">⌕</span>
         <span>Traduzir</span>
       </button>
-      <button class="tab-btn" data-tab="flashcards">
-        <span class="tab-icon">▣</span>
+      <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-flashcards" data-tab="flashcards">
+        <span class="tab-icon" aria-hidden="true">▣</span>
         <span>Flashcards</span>
       </button>
-      <button class="tab-btn" data-tab="history">
-        <span class="tab-icon">↶</span>
+      <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-history" data-tab="history">
+        <span class="tab-icon" aria-hidden="true">↶</span>
         <span>Histórico</span>
       </button>
     </nav>
 
-    <section id="tab-translate" class="tab-panel active">
+    <section id="tab-translate" class="tab-panel active" role="tabpanel">
       <div class="section-heading">
         <div>
           <span class="eyebrow">VOCABULÁRIO</span>
@@ -61,7 +61,7 @@
       <div id="manual-result" class="result-card"></div>
     </section>
 
-    <section id="tab-flashcards" class="tab-panel">
+    <section id="tab-flashcards" class="tab-panel" role="tabpanel">
       <div class="section-heading flash-heading">
         <div>
           <span class="eyebrow">REVISÃO</span>
@@ -97,7 +97,7 @@
       </div>
     </section>
 
-    <section id="tab-history" class="tab-panel">
+    <section id="tab-history" class="tab-panel" role="tabpanel">
       <div class="section-heading">
         <div>
           <span class="eyebrow">RECENTES</span>
@@ -122,7 +122,7 @@
       <div id="shortcuts-panel" class="shortcuts-panel hidden">
         <div class="shortcuts-title">
           <strong>Teclas de atalho</strong>
-          <button id="close-shortcuts-btn" class="close-simple">×</button>
+          <button id="close-shortcuts-btn" class="close-simple" aria-label="Fechar atalhos">×</button>
         </div>
 
         <div class="shortcut-simple">
