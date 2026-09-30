@@ -55,7 +55,12 @@
 
       <div class="tip">
         <span class="tip-icon">✦</span>
-        <span>Selecione uma palavra em qualquer página e use <strong>Ctrl + Shift + Y</strong>.</span>
+        <span>Selecione uma palavra em qualquer página e use <strong id="tip-shortcut">Ctrl + Shift + Y</strong>.</span>
+      </div>
+
+      <div id="shortcuts-warning" class="shortcuts-warning hidden" role="status">
+        <span>Algum atalho da extensão não foi definido, provavelmente por conflito com outra extensão.</span>
+        <button type="button" class="text-button open-shortcuts-btn">Configurar</button>
       </div>
 
       <div id="manual-result" class="result-card"></div>
@@ -127,15 +132,15 @@
 
         <div class="shortcut-simple">
           <span>Traduzir seleção</span>
-          <kbd>Ctrl ⇧ Y</kbd>
+          <kbd id="shortcut-translate">Ctrl ⇧ Y</kbd>
         </div>
 
         <div class="shortcut-simple">
           <span>Gravar clipe</span>
-          <kbd>Ctrl ⇧ U</kbd>
+          <kbd id="shortcut-record">Ctrl ⇧ U</kbd>
         </div>
 
-        <p>Você pode alterar os atalhos em <code>chrome://extensions/shortcuts</code>.</p>
+        <p>Você pode alterar os atalhos em <button type="button" class="link-button open-shortcuts-btn">chrome://extensions/shortcuts</button>.</p>
       </div>
     </section>
 

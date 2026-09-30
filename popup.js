@@ -11,6 +11,38 @@ closeShortcutsBtn.addEventListener("click", () => {
     shortcutsPanel.classList.add("hidden");
 });
 
+// Mostra os atalhos realmente atribuídos pelo Chrome. Se outra extensão já usa
+// a combinação sugerida no manifest, o Chrome deixa o atalho vazio sem avisar.
+const shortcutTargets = {
+    "translate-selection": ["tip-shortcut", "shortcut-translate"],
+    "toggle-recording": ["shortcut-record"],
+};
+
+async function loadShortcuts() {
+    const commands = await chrome.commands.getAll();
+    let missing = false;
+
+    commands.forEach((cmd) => {
+        const ids = shortcutTargets[cmd.name];
+        if (!ids) return;
+        if (!cmd.shortcut) missing = true;
+
+        ids.forEach((id) => {
+            const el = document.getElementById(id);
+            el.textContent = cmd.shortcut || "não definido";
+            el.classList.toggle("shortcut-missing", !cmd.shortcut);
+        });
+    });
+
+    document.getElementById("shortcuts-warning").classList.toggle("hidden", !missing);
+}
+
+document.querySelectorAll(".open-shortcuts-btn").forEach((btn) => {
+    btn.addEventListener("click", () => chrome.tabs.create({ url: "chrome://extensions/shortcuts" }));
+});
+
+loadShortcuts();
+
 
 const historyList = document.getElementById("history-list");
 const clearHistoryBtn = document.getElementById("clear-history-btn");

@@ -1,13 +1,29 @@
 const HISTORY_LIMIT = 50;
 
-chrome.commands.onCommand.addListener(async (command) => {
+// Abas abertas antes da instalação (ou de um reload da extensão) ficam sem
+// content script ativo. Nesse caso injeta o script e repete a mensagem.
+// A permissão activeTab concedida pelo atalho autoriza a injeção.
+async function sendToTab(tabId, message) {
     try {
-        const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-        if (!tab?.id) return;
-
-        await chrome.tabs.sendMessage(tab.id, { type: command });
+        return await chrome.tabs.sendMessage(tabId, message);
     } catch (error) {
-        console.warn("Aba atual não suporta recebimento de mensagens.", error);
+        if (!String(error?.message).includes("Receiving end does not exist")) throw error;
+
+        await chrome.scripting.insertCSS({ target: { tabId }, files: ["content.css"] });
+        await chrome.scripting.executeScript({ target: { tabId }, files: ["content.js"] });
+        return chrome.tabs.sendMessage(tabId, message);
+    }
+}
+
+chrome.commands.onCommand.addListener(async (command, tab) => {
+    try {
+        const target = tab?.id ? tab : (await chrome.tabs.query({ active: true, currentWindow: true }))[0];
+        if (!target?.id) return;
+
+        await sendToTab(target.id, { type: command });
+    } catch (error) {
+        // Páginas como chrome:// e a Chrome Web Store não aceitam scripts de extensões.
+        console.warn("Aba atual não suporta a extensão.", error);
     }
 });
 

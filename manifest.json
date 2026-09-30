@@ -30,7 +30,9 @@
         "https://api.mymemory.translated.net/*"
     ],
     "permissions": [
-        "storage"
+        "storage",
+        "scripting",
+        "activeTab"
     ],
     "commands": {
         "translate-selection": {
