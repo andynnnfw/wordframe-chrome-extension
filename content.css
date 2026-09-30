@@ -1,0 +1,46 @@
+#wordframe-overlay {
+  all: initial;
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 999999;
+  font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  background: #111827;
+  color: #f9fafb;
+  padding: 14px 18px;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  max-width: 280px;
+}
+
+#wordframe-overlay p {
+  margin: 0 0 6px 0;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+#wordframe-overlay p:first-child {
+  font-weight: 700;
+  font-size: 15px;
+}
+
+#wordframe-overlay p:last-child {
+  margin-bottom: 0;
+  color: #93c5fd;
+}
+
+#wordframe-toast {
+  all: initial;
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 999999;
+  font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  background: #1f2937;
+  color: #f9fafb;
+  padding: 10px 16px;
+  border-radius: 10px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+  font-size: 13px;
+  max-width: 260px;
+}

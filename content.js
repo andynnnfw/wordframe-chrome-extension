@@ -1,5 +1,5 @@
 let recorder = null;
-let recordedChunks = [];    
+let recordedChunks = [];
 
 function getSelectedText() {
   return window.getSelection().toString().trim();
@@ -17,6 +17,10 @@ function findActiveVideo() {
   return playing || videos[0];
 }
 
+function hideOverlay() {
+  document.getElementById("wordframe-overlay")?.remove();
+}
+
 function showOverlay(result) {
   let box = document.getElementById("wordframe-overlay");
   if (!box) {
@@ -25,24 +29,50 @@ function showOverlay(result) {
     document.body.appendChild(box);
   }
 
-  box.innerHTML = `
-    <p>${result.original}</p>
-    <p>${result.translation}</p>`;
+  // textContent (não innerHTML): o texto selecionado e a resposta da API
+  // nunca devem ser interpretados como HTML na página.
+  const original = document.createElement("p");
+  original.textContent = result.original;
+
+  const translation = document.createElement("p");
+  translation.textContent = result.translation;
+
+  box.replaceChildren(original, translation);
 }
+
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") hideOverlay();
+});
+
+document.addEventListener("mousedown", (e) => {
+  const box = document.getElementById("wordframe-overlay");
+  if (box && !box.contains(e.target)) hideOverlay();
+});
 
 async function handleTranslateSelection() {
   const text = getSelectedText();
 
   if (!text) {
-    alert("Selecione uma palavra ou frase antes de usar o atalho.");
+    showToast("Selecione uma palavra ou frase antes de usar o atalho.");
     return;
   }
 
-  const result = await chrome.runtime.sendMessage({
-    type: "fetch-translation",
-    text: text,
-  });
-  showOverlay(result);
+  try {
+    const result = await chrome.runtime.sendMessage({
+      type: "fetch-translation",
+      text: text,
+    });
+
+    if (!result || result.error) {
+      showToast(`Não foi possível traduzir: ${result?.error || "sem resposta."}`);
+      return;
+    }
+
+    showOverlay(result);
+  } catch (error) {
+    console.error("Erro ao traduzir:", error);
+    showToast("Não foi possível traduzir. Tente recarregar a página.");
+  }
 }
 
 function handleToggleRecording() {
@@ -50,17 +80,24 @@ function handleToggleRecording() {
     recorder.stop();
     return;
   }
-  
+
   const video = findActiveVideo();
   if (!video) {
     showToast("Nenhum vídeo encontrado nesta página.");
     return;
   }
 
+  if (typeof video.captureStream !== "function" || typeof MediaRecorder === "undefined") {
+    showToast("Este navegador não suporta gravar vídeos da página.");
+    return;
+  }
+
   try {
     const stream = video.captureStream();
+    const options = MediaRecorder.isTypeSupported("video/webm") ? { mimeType: "video/webm" } : undefined;
+
     recordedChunks = [];
-    recorder = new MediaRecorder(stream, { mimeType: "video/webm" });
+    recorder = new MediaRecorder(stream, options);
 
     recorder.ondataavailable = (e) => {
       if (e.data && e.data.size > 0) recordedChunks.push(e.data);
@@ -69,14 +106,24 @@ function handleToggleRecording() {
     recorder.onstop = onRecordingStop;
 
     recorder.start();
-    showToast("Gravando... pressione o atalho de novo para parar.");
+    showToast("● Gravando... pressione o atalho de novo para parar.", { persistent: true });
   } catch (error) {
     console.error("Erro ao gravar:", error);
-    showToast("Não foi possível gravar este vídeo.");
+    const protectedVideo = error.name === "SecurityError" || error.name === "NotSupportedError";
+    showToast(
+      protectedVideo
+        ? "Este vídeo é protegido e não pode ser gravado."
+        : "Não foi possível gravar este vídeo."
+    );
   }
 }
 
 function onRecordingStop() {
+  if (recordedChunks.length === 0) {
+    showToast("Nada foi gravado. O vídeo estava pausado?");
+    return;
+  }
+
   const blob = new Blob(recordedChunks, { type: "video/webm" });
   const url = URL.createObjectURL(blob);
   const filename = `wordframe-clip-${Date.now()}.webm`;
@@ -88,10 +135,13 @@ function onRecordingStop() {
   a.click();
   a.remove();
 
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  recordedChunks = [];
+
   showToast(`Clipe salvo como ${filename}`);
 }
 
-function showToast(text) {
+function showToast(text, { persistent = false } = {}) {
   let toast = document.getElementById("wordframe-toast");
   if (!toast) {
     toast = document.createElement("div");
@@ -100,9 +150,10 @@ function showToast(text) {
   }
   toast.textContent = text;
 
-
   clearTimeout(toast._hideTimeout);
-  toast._hideTimeout = setTimeout(() => toast.remove(), 4000);
+  if (!persistent) {
+    toast._hideTimeout = setTimeout(() => toast.remove(), 4000);
+  }
 }
 
 chrome.runtime.onMessage.addListener((msg) => {

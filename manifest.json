@@ -6,8 +6,18 @@
     "action": {
         "default_popup": "popup.html"
     },
+    "background": {
+        "service_worker": "background.js"
+    },
+    "content_scripts": [
+        {
+            "matches": ["<all_urls>"],
+            "js": ["content.js"],
+            "css": ["content.css"]
+        }
+    ],
     "host_permissions": [
-
+        "https://api.mymemory.translated.net/*"
     ],
     "permissions": [
         "storage"
@@ -17,16 +27,13 @@
             "suggested_key": {
                 "default": "Ctrl+Shift+Y"
             },
-            "description": "traduz o texto selecionado na página, com imagem de contexto."
+            "description": "traduz o texto selecionado na página."
         },
-          "toggle-recording": {
+        "toggle-recording": {
             "suggested_key": {
                 "default": "Ctrl+Shift+U"
             },
             "description": "inicia/para a gravação do vídeo em reprodução na aba (o clipe é baixado como .webm)."
         }
-        
     }
 }
-
-
