@@ -23,6 +23,7 @@
 - [Limitações conhecidas](#limitações-conhecidas)
 - [Estrutura do projeto](#estrutura-do-projeto)
 - [Tecnologias](#tecnologias)
+- [Licença](#licença)
 
 ## Visão geral
 
@@ -172,6 +173,10 @@ wordframe-chrome-extension/
 - Chrome Extensions API (Manifest V3): `commands`, `runtime`, `storage`, `tabs`
 - MediaStream Recording API (`captureStream`, `MediaRecorder`)
 - [MyMemory Translation API](https://mymemory.translated.net/doc/spec.php)
+
+## Licença
+
+Distribuído sob a licença MIT. Consulte o arquivo [LICENSE](LICENSE) para mais detalhes.
 
 ---
 
