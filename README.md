@@ -15,6 +15,7 @@
 
 - [Visão geral](#visão-geral)
 - [Funcionalidades](#funcionalidades)
+- [Próxima versão: 2.0](#próxima-versão-20)
 - [Instalação](#instalação)
 - [Como usar](#como-usar)
 - [Arquitetura](#arquitetura)
@@ -58,6 +59,21 @@ para parar. O trecho é baixado como arquivo `.webm`, útil para rever uma cena 
 **Interface**
 O popup acompanha o tema claro ou escuro do sistema, respeita as preferências de movimento reduzido
 e alto contraste, e exibe indicador de foco nos controles para navegação por teclado.
+
+## Próxima versão: 2.0
+
+A versão 2.0 está em desenvolvimento. O foco é deixar a tradução ainda mais rápida: basta selecionar
+um texto em qualquer site para a tradução aparecer em um pop-up logo ao lado da seleção, sem
+precisar do atalho de teclado.
+
+Planejado para a 2.0:
+
+- Tradução ao selecionar texto, com pop-up posicionado ao lado da seleção.
+- Botão para salvar a palavra como flashcard direto no pop-up.
+- Opção no popup para ligar ou desligar a tradução ao selecionar.
+- Suporte a textos dentro de conteúdos incorporados (`iframe`).
+
+O atalho `Ctrl+Shift+Y` continua funcionando normalmente.
 
 ## Instalação
 
